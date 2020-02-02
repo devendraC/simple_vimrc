@@ -11,7 +11,7 @@ In MacOS:
   - Install exuberant ctags: brew install ctags
 
 ## Install vim-plugins (For added features e.g. auto code completion):
-  - Setup vim plugin manager (I prefer pathogen) - refer https://github.com/tpope/vim-pathogen
+  - Setup vim plugin manager (I prefer pathogen) - Refer https://github.com/tpope/vim-pathogen
 
   - Plugin for displaying source code navigation in a sidebar:
     git clone https://github.com/majutsushi/tagbar ~/.vim/bundle/tagbar
@@ -36,12 +36,10 @@ In MacOS:
 
 
   - Install C++ plugins:
-    C++ code completion(using clang_complete):
-    ------------------------------------------
+    **C++ code completion(using clang_complete)**
     (Not using YCM (YouCompleteMe) as clang_complete is easier to use/setup).
-      https://github.com/xavierd/clang_complete
-      (This plugin is incompatible with omnicppcomplete)
-      Install and setup:
+     https://github.com/xavierd/clang_complete (NOTE: This plugin is incompatible with omnicppcomplete)
+      - Install and setup:
         - git clone git@github.com:xavierd/clang_complete.git ~/.vim/bundle/clang_complete
         - In .vimrc:
          let g:clang_library_path='/Library/Developer/CommandLineTools/usr/lib/libclang.dylib'
