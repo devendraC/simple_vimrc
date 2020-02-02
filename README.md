@@ -37,6 +37,7 @@ In MacOS:
 
   - Install C++ plugins:
     **C++ code completion(using clang_complete)**
+ ```
     (Not using YCM (YouCompleteMe) as clang_complete is easier to use/setup).
      https://github.com/xavierd/clang_complete (NOTE: This plugin is incompatible with omnicppcomplete)
       - Install and setup:
@@ -56,6 +57,7 @@ In MacOS:
             :helptags ALL     ---> Generate the help tags (one time activity)
             :help clang_complete
           - Compiler options (including header file path) can be configured in a .clang_complete file in each project root.
+```
  
  ```
 Generic code completion (YCM):
