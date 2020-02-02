@@ -3,11 +3,12 @@ A simple vim configuration file (.vimrc) for C++, golang and python development
 
 ## basic vim setup
 In MacOS:
-  - In MacOS, for many plugins require you to override default vim:
+  - In MacOS, few plugins require you to override the default vim:
+    ```
     brew install --with-override-system-vi vim
     brew upgrade vim
     brew info vim
-
+    ```
   - Install exuberant ctags: brew install ctags
 
 ## Install vim-plugins (For added features e.g. auto code completion):
