@@ -36,17 +36,17 @@ In MacOS:
 
 
   - Install C++ plugins:
-    **C++ code completion(using clang_complete)**
+    **C++ code completion (using clang_complete)**
+    (Refer https://github.com/xavierd/clang_complete (NOTE: This plugin is incompatible with omnicppcomplete))
+    *I am not using YCM (YouCompleteMe) as clang_complete is far easier to use/setup in MacOS.*
  ```
-    (Not using YCM (YouCompleteMe) as clang_complete is easier to use/setup).
-     https://github.com/xavierd/clang_complete (NOTE: This plugin is incompatible with omnicppcomplete)
-      - Install and setup:
-        - git clone git@github.com:xavierd/clang_complete.git ~/.vim/bundle/clang_complete
-        - In .vimrc:
-         let g:clang_library_path='/Library/Developer/CommandLineTools/usr/lib/libclang.dylib'
-         let g:clang_snippets = 1
-         let g:clang_snippets_engine = 'clang_complete'
-        - Project root should contain .clang_complete (which contains compiler flags and include directories)
+    - Install and setup:
+      - git clone git@github.com:xavierd/clang_complete.git ~/.vim/bundle/clang_complete
+      - In .vimrc:
+       let g:clang_library_path='/Library/Developer/CommandLineTools/usr/lib/libclang.dylib'
+       let g:clang_snippets = 1
+       let g:clang_snippets_engine = 'clang_complete'
+      - Project root should contain .clang_complete (which contains compiler flags and include directories)
         To generate the file using cmake:
          CXX='~/.vim/bundle/clang_complete/bin/cc_args.py clang++' cmake ..
          make
@@ -58,14 +58,18 @@ In MacOS:
             :help clang_complete
           - Compiler options (including header file path) can be configured in a .clang_complete file in each project root.
 ```
- 
- ```
-Generic code completion (YCM):
-  prerequisite for  MacOS: brew install cmake macvim
-  git clone git@github.com:ycm-core/YouCompleteMe.git ~/.vim/bundle/YouCompleteMe
-  cd ~/.vim/bundle/YouCompleteMe
-  git submodule update --init --recursive
-  ./install.py --java-completer
+## To generate help data of installed plugins, use following commands (within vim):
+  :helptags ALL     ---> Generate the help tags (one time activity)
+  :help <plugin-name> (e.g. :help vim-go)
+
+```
+NOTE: If you still want to use YCM (YouCompleteMe), a generic code completion plugin:
+  Prerequisite for  MacOS: brew install cmake macvim
+  Setup:
+    1. git clone git@github.com:ycm-core/YouCompleteMe.git ~/.vim/bundle/YouCompleteMe
+    2. cd ~/.vim/bundle/YouCompleteMe
+    3. git submodule update --init --recursive
+    4. ./install.py --java-completer
   Other options:
   --------------
     --clang-completer --go-completer --java-completer
@@ -84,7 +88,3 @@ Generic code completion (YCM):
         - To use a global config file, add this to .vimrc:
           let g:ycm_global_ycm_extra_conf = "~/.vim/.ycm_extra_conf.py"
 ```                                                                                                                           
-
- ## To generate help data of installed plugins, use following commands (within vim):
-  :helptags ALL     ---> Generate the help tags (one time activity)
-  :help <plugin-name> (e.g. :help vim-go)
