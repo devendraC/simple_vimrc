@@ -3,6 +3,19 @@ set nocompatible
 set encoding=utf-8
 colorscheme desert
 
+
+" Using plugin manager vim-plugin (https://github.com/junegunn/vim-plug)
+" No need to turn off/on for filetype plugin
+" filetype plugin indent off
+" filetype plugin indent on
+" NOTE: After adding a new plugin you need to reload .vimrc and call :PlugInstall
+" call plug#begin('~/.vim/plugged')
+" Plug 'pakutoma/toggle-terminal'
+" Plug 'preservim/nerdtree'
+" Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
+" call plug#end()
+" set ffs=unix,dos,mac
+
 """""""""""""""""""""""""""""""""""""""""""""""
 " Load plugins manager (pathogen or vundle)
 filetype off              " Helps force plugins to load correctly when it is turned back on below
@@ -75,8 +88,15 @@ set tags=./tags;
 " Set leader shortcut to a comma ','. By default it's the backslash
 let mapleader = ","
 
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"       nerdtree plugin settings and mappings
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+map <F8> :NERDTreeToggle<CR>
+" close vim if the only window left open is a NERDTree
+autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
+let NERDTreeShowBookmarks=1
 " mapping for toggling Tagbar window (for tagbar plugin)
-nmap <F8> :TagbarToggle<CR>
+" nmap <F8> :TagbarToggle<CR>
 
 " YCM settings:
 " Not using YCM
