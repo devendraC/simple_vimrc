@@ -28,14 +28,20 @@ set noswapfile        " Don't use swapfile
 set nobackup          " Get rid of anoying ~file
 set autowrite         " Auto save file after running certain commands (including make, next, previous).
 set autoread          " Auto reload the file if it changes outside of vim.
-set splitright        " Vertical windows should be split to right
-set splitbelow        " Horizontal windows should split to bottom
 set history=200       " keep 200 lines of command line history
 set showcmd           " Show me what I'm typing
 set number            " Show line numbers
 set ruler             " Show file stats
 set list              " enable visualization of tab, new-line.
 set listchars=tab:>-  " Visualize tabs
+set splitright        " Vertical windows should be split to right
+set splitbelow        " Horizontal windows should split to bottom
+" open help window in right vertical split (in place of bottom)
+augroup vimrc_help
+  autocmd!
+  autocmd BufEnter *.txt if &buftype == 'help' | wincmd L | endif
+augroup END
+" In my vim, the last cusror position was not being saved.
 " When editing a file, always jump to the last known cursor position.
 " Don't do it when the position is invalid, when inside an event handler
 " (happens when dropping a file on gvim) and for a commit message (it's
@@ -43,7 +49,8 @@ set listchars=tab:>-  " Visualize tabs
 autocmd BufReadPost *
   \ if line("'\"") >= 1 && line("'\"") <= line("$") && &ft !~# 'commit'
   \ |   exe "normal! g`\""
-  \ | endif
+ " \ | endif
+
 
 " Searching
 set hlsearch
@@ -100,27 +107,43 @@ let NERDTreeShowBookmarks=1
 " vim-cmake-completion (code completion for cmake)
 """""""""""""""""""""""""""""""""""""""""""""""""
 " Important commands:
-"   - Code completion   CTRL-x CTRL-o (in editing mode)  --> Standard 'omnifunc'.
-"   - Word completion   CTRL-n/CTRL-p (in editing mode)  --> Vim feature
+"   - Word completion   CTRL-n/CTRL-p (in editing mode)  --> Vim's standard feature (n - next/p - previous)
+"   - Code completion   CTRL-x CTRL-o (in editing mode)  --> Vim's standard feature ('omnifunc')
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""
 " python-mode (all-in-one plugin for python)
 """""""""""""""""""""""""""""""""""""""""""""""""
 " Important commands:
-" Important commands:
-"   - Code completion:
-"                       CTRL-x CTRL-o (in editing mode)  --> Standard 'omnifunc'.
-"                       .(period) (in editing mode)
-"                       CTRL-<space>
-"   - Word completion   CTRL-n/CTRL-p (in editing mode)  --> Standard way.
-"   - Go to definition  CTRL-w CTRL-]                    --> Standard way.????
-"   - Run         - ,r (<leader>r)
-"   - Breakpoint  - ,b (<leader>b)
-"   TODO:
+"   - Word completion   CTRL-n/CTRL-p (in editing mode) --> Vim's standard feature (n - next/p - previous)
+"   - Code completion   CTRL-x CTRL-o (in editing mode) --> Vim's standard feature (called 'omnifunc')
+"                       .(period) (in editing mode)     --> auto pop-up (use CTRL-<space>)
+"   - Go to definition  CTRL-w CTRL-]                    --> mapping needed (see below)
+"   - Help              K (K - Knowledge base, Vim standard key to open man page for the keyword under the cursor)
+"   - Run               ,r (<leader>r)
+"   - Breakpoint        ,b (<leader>b)
+"   - Jump to next class/function/method (The feature can be disbled by let g:pymode_motion = 0)
+"       [[    Jump to previous class or function.
+"       ]]    Jump to next class or function.
+"       [M    Jump to previous class or method.
+"       ]M    Jump to next class or method.
+"   - Linting (To disable let g:pymode_lint = 0 or :PymodeLintToggle)
+"       :PymodeLintAuto   -- Fix PEP8 errors in current buffer automatically
+"       :PymodeLint       -- Check code in current buffer (it is automatically done when saving the file)
+"   - Auto import
 "     :PymodeRopeAutoImport -- Resolve import for element under cursor
+"
+let g:pymode_rope = 1                                 " enable rope commands (default disabled)
+let g:pymode_rope_autoimport=1                        " auto-complete objects which have not been imported from project
+let g:pymode_rope_goto_definition_bind = '<C-w><C-]>' " go to the definition
+let g:pymode_rope_goto_definition_cmd = 'vnew'        " open definition in vertical split
+"   TODO:
+"     - Code refactoring <rope refactoring library> (rope_)
+"     - Strong code completion (rope_)
+"     - Go to definition (``<C-c>g`` for `:RopeGotoDefinition`)
 "     Keymap for rename method/function/class/variables under cursor
 "         let g:pymode_rope_autoimport_bind = '<C-c>ra'
+let g:pymode_options_max_line_length = 120 " default is 79
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""
@@ -129,29 +152,35 @@ let NERDTreeShowBookmarks=1
 "   https://github.com/fatih/vim-go-tutorial
 "   https://github.com/fatih/vim-go.git
 " Important commands:
-"   - Code completion   CTRL-x CTRL-o (in editing mode)  --> Standard 'omnifunc'.
-"   - Word completion   CTRL-n/CTRL-p (in editing mode)  --> Standard vim feature?
-"   - Go to definition  CTRL-w CTRL-]                    --> Standard way.
+"   - Word completion   CTRL-n/CTRL-p (in editing mode)  --> Vim's standard feature (n - next/p - previous)
+"   - Code completion   CTRL-x CTRL-o (in editing mode)  --> Vim's standard feature (called 'omnifunc')
+"   - Go to definition  CTRL-w CTRL-]                    --> standard way.
 "   - Run               ,r (<leader>r)
 "   - Build             ,b (<leader>b)
+"   - Help              :GoDoc(K) (K- Knowledge base, Vim standard key to open the man page for the keyword under the cursor.)
+"   - GoDocBrowser      :GoDocBrowser(ctrl-k) (Open go doc in the browser for the keyword under cusrosr)
 "   - GoPlay            :GoPlay (Share your current code to play.golang.org)
-nmap <F7> :GoPlay <CR>
 " Build using ,b (or :GoBuild)
 autocmd FileType go nmap <leader>b  <Plug>(go-build)
 " Run using ,r (or :GoRun)
 autocmd FileType go nmap <leader>r  <Plug>(go-run)
+" open go doc in browser
+autocmd FileType go nmap <C-k> <Plug>(go-doc-browser)
+" open go doc in vertical split
+" autocmd FileType go nmap <Leader>gd <Plug>(go-doc-vertical)
 " jump to next error in the quickfix window
 map <C-n> :cnext<CR>
 " jump to previous error in the quickfix window
 map <C-m> :cprevious<CR>
+" nmap <F7> :GoPlay <CR>
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""
 " clang_complete (C++ code completion for clang)
 """""""""""""""""""""""""""""""""""""""""""""""""
 " Important commands:
-"   - Code completion   CTRL-x CTRL-o (in editing mode)  --> Standard 'omnifunc'. ????
-"   - Word completion   CTRL-n/CTRL-p (in editing mode)  --> Standard way. ???
+"   - Word completion   CTRL-n/CTRL-p (in editing mode)  --> Vim's standard feature (n - next/p - previous)
+"   - Code completion   CTRL-x CTRL-o (in editing mode)  --> Vim's standard feature (called 'omnifunc')
 "   - Go to definition  CTRL-w CTRL-]                    --> Standard way. ???
 let g:clang_library_path='/Library/Developer/CommandLineTools/usr/lib/libclang.dylib'
 let g:clang_snippets = 1
