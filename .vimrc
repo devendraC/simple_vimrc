@@ -1,28 +1,26 @@
 " Don't try to be vi compatible
 set nocompatible
 set encoding=utf-8
+set ffs=unix,dos,mac
 colorscheme desert
 
 
+"""""""""""""""""""""""""""""""""""""""""""""""
+" Load plugins manager (pathogen, vundle, vim-plugin)
 " Using plugin manager vim-plugin (https://github.com/junegunn/vim-plug)
-" No need to turn off/on for filetype plugin
+" With vim-plug, no need to turn off/on for filetype plugin
 " filetype plugin indent off
 " filetype plugin indent on
-" NOTE: After adding a new plugin you need to reload .vimrc and call :PlugInstall
-" call plug#begin('~/.vim/plugged')
-" Plug 'pakutoma/toggle-terminal'
-" Plug 'preservim/nerdtree'
-" Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
-" call plug#end()
-" set ffs=unix,dos,mac
-
-"""""""""""""""""""""""""""""""""""""""""""""""
-" Load plugins manager (pathogen or vundle)
-filetype off              " Helps force plugins to load correctly when it is turned back on below
-" Load pathogen (https://github.com/tpope/vim-pathogen)
-execute pathogen#infect()
-" To see help of a installed vim plugin use :help <plugin-name> (e.g. :help vim-go)
-filetype plugin indent on " For plugins to load correctly
+" NOTE:
+"   - After adding a new plugin you need to reload .vimrc and call :PlugInstall
+"   - To see help of a installed vim plugin use :help <plugin-name> (e.g. :help vim-go)
+call plug#begin('~/.vim/plugged')
+Plug 'preservim/nerdtree'
+Plug 'richq/vim-cmake-completion'
+Plug 'python-mode/python-mode', { 'for': 'python', 'branch': 'develop' }
+Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
+Plug 'xavierd/clang_complete'
+call plug#end()
 """""""""""""""""""""""""""""""""""""""""""""""
 
 syntax on             " Turn on syntax highlighting
@@ -88,32 +86,56 @@ set tags=./tags;
 " Set leader shortcut to a comma ','. By default it's the backslash
 let mapleader = ","
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"       nerdtree plugin settings and mappings
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+"""""""""""""""""""""""""""""""""""""""""""""""""
+" nerdtree
+"""""""""""""""""""""""""""""""""""""""""""""""""
 map <F8> :NERDTreeToggle<CR>
 " close vim if the only window left open is a NERDTree
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
 let NERDTreeShowBookmarks=1
-" mapping for toggling Tagbar window (for tagbar plugin)
-" nmap <F8> :TagbarToggle<CR>
 
-" YCM settings:
-" Not using YCM
-" let g:ycm_global_ycm_extra_conf = "~/.vim/.ycm_extra_conf.py"
 
-" clang_complete settings (C++ code completion for clang) - https://github.com/xavierd/clang_complete
-let g:clang_library_path='/Library/Developer/CommandLineTools/usr/lib/libclang.dylib'
-let g:clang_snippets = 1
-let g:clang_snippets_engine = 'clang_complete'
-" Compiler options can be configured in a .clang_complete file in the project's root directory.
-" To generate the file using cmake:
-"   CXX='~/.vim/bundle/clang_complete/bin/cc_args.py clang++' cmake ..
-"   make (copy .clang_complete to the project root directory)
+"""""""""""""""""""""""""""""""""""""""""""""""""
+" vim-cmake-completion (code completion for cmake)
+"""""""""""""""""""""""""""""""""""""""""""""""""
+" Important commands:
+"   - Code completion   CTRL-x CTRL-o (in editing mode)  --> Standard 'omnifunc'.
+"   - Word completion   CTRL-n/CTRL-p (in editing mode)  --> Vim feature
 
-" vim-go settings
-" https://github.com/fatih/vim-go.git
-" https://github.com/fatih/vim-go-tutorial
+
+"""""""""""""""""""""""""""""""""""""""""""""""""
+" python-mode (all-in-one plugin for python)
+"""""""""""""""""""""""""""""""""""""""""""""""""
+" Important commands:
+" Important commands:
+"   - Code completion:
+"                       CTRL-x CTRL-o (in editing mode)  --> Standard 'omnifunc'.
+"                       .(period) (in editing mode)
+"                       CTRL-<space>
+"   - Word completion   CTRL-n/CTRL-p (in editing mode)  --> Standard way.
+"   - Go to definition  CTRL-w CTRL-]                    --> Standard way.????
+"   - Run         - ,r (<leader>r)
+"   - Breakpoint  - ,b (<leader>b)
+"   TODO:
+"     :PymodeRopeAutoImport -- Resolve import for element under cursor
+"     Keymap for rename method/function/class/variables under cursor
+"         let g:pymode_rope_autoimport_bind = '<C-c>ra'
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""
+" vim-go (all-in-one plugin for golang)
+"""""""""""""""""""""""""""""""""""""""""""""""""
+"   https://github.com/fatih/vim-go-tutorial
+"   https://github.com/fatih/vim-go.git
+" Important commands:
+"   - Code completion   CTRL-x CTRL-o (in editing mode)  --> Standard 'omnifunc'.
+"   - Word completion   CTRL-n/CTRL-p (in editing mode)  --> Standard vim feature?
+"   - Go to definition  CTRL-w CTRL-]                    --> Standard way.
+"   - Run               ,r (<leader>r)
+"   - Build             ,b (<leader>b)
+"   - GoPlay            :GoPlay (Share your current code to play.golang.org)
+nmap <F7> :GoPlay <CR>
 " Build using ,b (or :GoBuild)
 autocmd FileType go nmap <leader>b  <Plug>(go-build)
 " Run using ,r (or :GoRun)
@@ -122,7 +144,28 @@ autocmd FileType go nmap <leader>r  <Plug>(go-run)
 map <C-n> :cnext<CR>
 " jump to previous error in the quickfix window
 map <C-m> :cprevious<CR>
-" Share your current code to play.golang.org with F7 or |:GoPlay|.
-nmap <F7> :GoPlay <CR>
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""
+" clang_complete (C++ code completion for clang)
+"""""""""""""""""""""""""""""""""""""""""""""""""
+" Important commands:
+"   - Code completion   CTRL-x CTRL-o (in editing mode)  --> Standard 'omnifunc'. ????
+"   - Word completion   CTRL-n/CTRL-p (in editing mode)  --> Standard way. ???
+"   - Go to definition  CTRL-w CTRL-]                    --> Standard way. ???
+let g:clang_library_path='/Library/Developer/CommandLineTools/usr/lib/libclang.dylib'
+let g:clang_snippets = 1
+let g:clang_snippets_engine = 'clang_complete'
+" Compiler options can be configured in a .clang_complete file in the project's root directory.
+" To generate the file using cmake:
+"   CXX='~/.vim/bundle/clang_complete/bin/cc_args.py clang++' cmake ..
+"   make (copy .clang_complete to the project root directory)
+
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+" load your custome vimrc here
+let local_vimrc = "~/.vimrc.local"
+if filereadable(expand(local_vimrc))
+    exe 'source' local_vimrc
+endif
 
