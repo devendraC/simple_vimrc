@@ -1,8 +1,5 @@
 " Don't try to be vi compatible
 set nocompatible
-set encoding=utf-8
-set ffs=unix,dos,mac
-colorscheme desert
 
 
 """""""""""""""""""""""""""""""""""""""""""""""
@@ -23,25 +20,90 @@ Plug 'xavierd/clang_complete'
 call plug#end()
 """""""""""""""""""""""""""""""""""""""""""""""
 
+" Common settings
+set encoding=utf-8
+set ffs=unix,dos,mac
+"set title                       " Change terminal title
+set tags=./tags;      " find ctags recursively
+
+" Editor appearance
 syntax on             " Turn on syntax highlighting
-set noswapfile        " Don't use swapfile
-set nobackup          " Get rid of anoying ~file
-set autowrite         " Auto save file after running certain commands (including make, next, previous).
-set autoread          " Auto reload the file if it changes outside of vim.
+colorscheme desert
 set history=200       " keep 200 lines of command line history
 set showcmd           " Show me what I'm typing
+set showmatch         " Show matching bracket/parenthesis/etc
+set title             " Change terminal title (as you tab to different file)
 set number            " Show line numbers
 set ruler             " Show file stats
 set list              " enable visualization of tab, new-line.
 set listchars=tab:>-  " Visualize tabs
 set splitright        " Vertical windows should be split to right
 set splitbelow        " Horizontal windows should split to bottom
-" open help window in right vertical split (in place of bottom)
-augroup vimrc_help
+augroup vimrc_help    " open help window in right vertical split (in place of bottom horizontal split)
   autocmd!
   autocmd BufEnter *.txt if &buftype == 'help' | wincmd L | endif
 augroup END
-" In my vim, the last cusror position was not being saved.
+
+
+" Searching
+set hlsearch
+set incsearch
+set ignorecase
+set smartcase
+set showmatch
+
+" Indentation
+set autoindent
+set smartindent
+set formatoptions=tcqrn1
+set expandtab             " Use space(s) for autoindent or when  when <TAB> is pressed
+set tabstop=2             "
+set softtabstop=2         " Number of spaced to use when pressing <Tab> in editing mode.
+set shiftwidth=2          " Spaces to use for each step of (auto)indent (including commands << and >>).
+set noshiftround
+" set backspace=indent,eol,start  " Makes backspace key more powerful.
+
+" Text wrapping
+set nowrap            " Don't wrap (effect display only)
+set linebreak         " Wrap at boundary (e.g. at word boundary - when wrap is not off) - effect display only.
+set textwidth=115     " Physically wrap after 115 characters.
+
+" No backup files but do auto-save
+set noswapfile        " Don't use swapfile
+set nobackup          " Get rid of anoying ~file
+set autowrite         " Auto save file after running certain commands (including make, next, previous).
+set autoread          " Auto reload the file if it changes outside of vim.
+
+" Joining (NOTE: Use shift+J for joining next line)
+set nojoinspaces      " Remove duplicate spaces when joining.
+set formatoptions+=j  " Remove comment leader when joining lines
+
+" Remove trailing whitespace (when saving)
+augroup remove_trailing_whitespace
+  autocmd!
+  autocmd BufWritePre * :call RemoveTrailingWhitespace()
+augroup end
+
+" Completion menu setings
+set completeopt=menu,menuone,longest,preview
+
+" enables undo files even if you exit Vim.
+if has('persistent_undo')
+  set undofile
+  set undodir=~/.vim/undo/
+  set undolevels=1000
+  set undoreload=10000
+endif
+
+" Enable to copy to clipboard for operations like yank, delete, change and put
+" http://stackoverflow.com/questions/20186975/vim-mac-how-to-copy-to-clipboard-without-pbcopy
+if has('unnamedplus')
+  set clipboard^=unnamed
+  set clipboard^=unnamedplus
+endif
+
+
+" Workaround if the last cusror position is not being saved
 " When editing a file, always jump to the last known cursor position.
 " Don't do it when the position is invalid, when inside an event handler
 " (happens when dropping a file on gvim) and for a commit message (it's
@@ -52,55 +114,46 @@ autocmd BufReadPost *
  " \ | endif
 
 
-" Searching
-set hlsearch
-set incsearch
-set ignorecase
-set smartcase
-set showmatch
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Functions
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+function! RemoveTrailingWhitespace()
+  if !exists("g:dont_remove_trailing_whitespace")
+    %s/\s\+$//e
+  endif
+endfunction
 
-" editor setup
-" set backspace=indent,eol,start  " Makes backspace key more powerful.
-set autoindent
-set wrap                    " Whitespace
-set textwidth=115
-set formatoptions=tcqrn1
-set tabstop=2
-set shiftwidth=2
-set softtabstop=2
-set expandtab
-set noshiftround
-
-" This enables us to undo files even if you exit Vim.
-if has('persistent_undo')
-  set undofile
-  set undodir=~/.vim/undo//
-endif
-
-" Enable to copy to clipboard for operations like yank, delete, change and put
-" http://stackoverflow.com/questions/20186975/vim-mac-how-to-copy-to-clipboard-without-pbcopy
-if has('unnamedplus')
-  set clipboard^=unnamed
-  set clipboard^=unnamedplus
-endif
-
-" for ctags
-set tags=./tags;
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"                             Settings for vim plugins 
+"                             Global Common Mappings
 "                             -------------------------
 " Set leader shortcut to a comma ','. By default it's the backslash
 let mapleader = ","
 
+" Vim standard key mappings:
+" --------------------------
+"   - Help              :K (in normal mode)             --> open the man page for the keyword under the cursor.
+"   - Word completion   CTRL-n (in editing mode)        --> n-next suggestion, CTRL-p (for previous).
+"   - Code completion   CTRL-x CTRL-o (in editing mode) --> called 'omnifunc'.
+"   - Go to definition  CTRL-]                          --> CTRL-w CTRL-] (open in new horizontal split window)
+"
+" Mapping to open go to definition in vertical split (using ] without CTRL)
+nnoremap ] :vert winc ]<CR>
 
-"""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"                             Settings for vim plugins
+"                             -------------------------
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " nerdtree
 """""""""""""""""""""""""""""""""""""""""""""""""
 map <F8> :NERDTreeToggle<CR>
 " close vim if the only window left open is a NERDTree
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
 let NERDTreeShowBookmarks=1
+" Store the bookmarks file
+let NERDTreeBookmarksFile=expand("$HOME/.vim/nerdtree_bookmarks")
+" show nerdtree on the right side
+let g:NERDTreeWinPos = "right"
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""
@@ -187,7 +240,7 @@ let g:clang_snippets = 1
 let g:clang_snippets_engine = 'clang_complete'
 " Compiler options can be configured in a .clang_complete file in the project's root directory.
 " To generate the file using cmake:
-"   CXX='~/.vim/bundle/clang_complete/bin/cc_args.py clang++' cmake ..
+"   CXX='~/.vim/plugged/clang_complete/bin/cc_args.py clang++' cmake ..
 "   make (copy .clang_complete to the project root directory)
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
