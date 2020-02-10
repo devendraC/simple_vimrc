@@ -12,6 +12,7 @@ set nocompatible
 "   - To see help of a installed vim plugin use :help <plugin-name> (e.g. :help vim-go)
 call plug#begin('~/.vim/plugged')
 Plug 'preservim/nerdtree'
+Plug 'yegappan/mru'
 Plug 'richq/vim-cmake-completion'
 Plug 'python-mode/python-mode', { 'for': 'python', 'branch': 'develop' }
 Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
@@ -139,10 +140,33 @@ function! RemoveTrailingWhitespace()
   endif
 endfunction
 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"                                    ctags
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Important commands:
+"   :stag <symbol> --> Open the file containing definition of <symbol> in split window.
+"   :tag <symbol>  --> Same as above except open in same window.
+"   :stag <file>   --> Open the file, irrespective of where it is located (ctags must be generated using --extra=+f).
+"   :tag <symbol>  --> Same as above except open in same window.
+" Generate ctags using:
+"     ctags -R --c++-kinds=+p --fields=+iaS --extra=+q --extra=+f --language-force=C++ --exclude=.git *
+"
+" TODO: Plugin for automatically updating the ctags file:
+"     Plug 'craigemery/vim-autotag'
+" Mapping to switch between C/C++ source and header file (the ctags must have been genarted using --extra=+f).
+nnoremap <leader>a :<c-u>tjump /^<c-r>=expand("%:t:r")<cr>\.\(<c-r>=join(get(
+    \ {
+    \ 'c':   ['h'],
+    \ 'cpp': ['h','hpp'],
+    \ 'h':   ['c','cpp'],
+    \ 'hpp': ['cpp']
+    \ },
+    \  expand("%:e"), ['UNKNOWN EXTENSION']), '\\\|')<cr>\)$<cr>
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "                             Global Common Mappings
 "                             -------------------------
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Set leader shortcut to a comma ','. By default it's the backslash
 let mapleader = ","
 
@@ -162,31 +186,10 @@ let mapleader = ","
 nnoremap ] :vert winc ]<CR>
 
 
-""" ctags:
-" 1) Generate ctags using:
-"     ctags -R --c++-kinds=+p --fields=+iaS --extra=+q --extra=+f --language-force=C++ --exclude=.git *
-" 2) Commands:
-"   :tag <symbol>    --> Open the file containing definition of <symbol>.
-"   :tag <filename>  --> Open file <filename> (irrespective of where it is in the directory tree).
-"                    --> ctags must be generated using --extra=+f.
-"
-" TODO: Plugin for automatically updating the ctags file:
-"     Plug 'craigemery/vim-autotag'
-" Mapping to switch between C/C++ source and header file (the ctags must have been genarted using --extra=+f).
-nnoremap <leader>a :<c-u>tjump /^<c-r>=expand("%:t:r")<cr>\.\(<c-r>=join(get(
-    \ {
-    \ 'c':   ['h'],
-    \ 'cpp': ['h','hpp'],
-    \ 'h':   ['c','cpp'],
-    \ 'hpp': ['cpp']
-    \ },
-    \  expand("%:e"), ['UNKNOWN EXTENSION']), '\\\|')<cr>\)$<cr>
-
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "                             Settings for vim plugins
 "                             -------------------------
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " nerdtree
 """""""""""""""""""""""""""""""""""""""""""""""""
 map <F8> :NERDTreeToggle<CR>
@@ -198,6 +201,21 @@ let NERDTreeBookmarksFile=expand("$HOME/.vim/nerdtree_bookmarks")
 " show nerdtree on the right side
 let g:NERDTreeWinPos = "right"
 
+"""""""""""""""""""""""""""""""""""""""""""""""""
+" MRU (Show most recently opened file)
+"""""""""""""""""""""""""""""""""""""""""""""""""
+" https://github.com/yegappan/mru/wiki/User-Manual
+" Important commands:
+"   :MRU    - Display MRU window.
+"   o       - Open the selected file in a split.
+"   t       - Open the selected file in new tab.
+"   <N>o/t  - Open N files (you can also visually select multiple filenames).
+"
+let MRU_File = expand("$HOME/.vim/mru_files")
+let MRU_Max_Entries = 20
+let MRU_Window_Height = 15          " The default height of the MRU window is 8.
+let MRU_Open_File_Use_Tabs = 1      " Open the selected file in new tab rather than current tab.
+"let MRU_Auto_Close = 0             " To keep the MRU window open, after selecting the file.
 
 """""""""""""""""""""""""""""""""""""""""""""""""
 " vim-cmake-completion (code completion for cmake)
@@ -283,8 +301,7 @@ let g:clang_snippets_engine = 'clang_complete'
 " To generate the file using cmake:
 "   CXX='~/.vim/plugged/clang_complete/bin/cc_args.py clang++' cmake ..
 "   make (copy .clang_complete to the project root directory)
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 " load your custome vimrc here
 let local_vimrc = "~/.vimrc.local"
