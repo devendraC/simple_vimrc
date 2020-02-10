@@ -1,7 +1,6 @@
 " Don't try to be vi compatible
 set nocompatible
 
-
 """""""""""""""""""""""""""""""""""""""""""""""
 " Load plugins manager (pathogen, vundle, vim-plugin)
 " Using plugin manager vim-plugin (https://github.com/junegunn/vim-plug)
@@ -23,13 +22,15 @@ call plug#end()
 " Common settings
 set encoding=utf-8
 set ffs=unix,dos,mac
-"set title                       " Change terminal title
-set tags=./tags;      " find ctags recursively
+set title             " Change terminal title
+set tags=./tags;      " Find ctags recursively
+"set paste            " This is useful if you want to cut/copy-paste from external system to vim.
+                      " This disables many features (including autoindent, tabstop etc.)
 
 " Editor appearance
 syntax on             " Turn on syntax highlighting
 colorscheme desert
-set history=200       " keep 200 lines of command line history
+set history=200       " Keep 200 lines of command line history
 set showcmd           " Show me what I'm typing
 set showmatch         " Show matching bracket/parenthesis/etc
 set title             " Change terminal title (as you tab to different file)
@@ -44,6 +45,16 @@ augroup vimrc_help    " open help window in right vertical split (in place of bo
   autocmd BufEnter *.txt if &buftype == 'help' | wincmd L | endif
 augroup END
 
+" Spelling check
+set spelllang=en_us   " Set US English for spell checking.
+" set spell           " Enable spell-check for all file types.
+" always put autocmd inside augroup (to avoid executing each time you source .vimrc)
+augroup forspellcheck
+  autocmd!
+" Enable spell checking for text, markdown and git commit only.
+  autocmd FileType text,markdown,gitcommit setlocal spell
+  autocmd BufRead,BufNewFile *.md setlocal spell
+augroup END
 
 " Searching
 set hlsearch
@@ -56,17 +67,20 @@ set showmatch
 set autoindent
 set smartindent
 set formatoptions=tcqrn1
-set expandtab             " Use space(s) for autoindent or when  when <TAB> is pressed
-set tabstop=2             "
-set softtabstop=2         " Number of spaced to use when pressing <Tab> in editing mode.
-set shiftwidth=2          " Spaces to use for each step of (auto)indent (including commands << and >>).
+set expandtab                   " Use space(s) for autoindent or when  when <TAB> is pressed
+set tabstop=2                   "
+set softtabstop=2               " Number of spaced to use when pressing <Tab> in editing mode.
+set shiftwidth=2                " Spaces to use for each step of (auto)indent (including commands << and >>).
 set noshiftround
-" set backspace=indent,eol,start  " Makes backspace key more powerful.
+set backspace=indent,eol,start  " Powerful backspace.
+" backspace=indent  - Allow erasing indentation.
+" backspace=eol     - Allow erasing end-of-line (using backspace at start of a line will join it to the previous line).
+" backspace=start   - Allow erasing past the position where you started Insert mode.
 
 " Text wrapping
 set nowrap            " Don't wrap (effect display only)
 set linebreak         " Wrap at boundary (e.g. at word boundary - when wrap is not off) - effect display only.
-set textwidth=115     " Physically wrap after 115 characters.
+set textwidth=120     " Physically wrap after 120 characters.
 
 " No backup files but do auto-save
 set noswapfile        " Don't use swapfile
@@ -135,10 +149,34 @@ let mapleader = ","
 "   - Help              :K (in normal mode)             --> open the man page for the keyword under the cursor.
 "   - Word completion   CTRL-n (in editing mode)        --> n-next suggestion, CTRL-p (for previous).
 "   - Code completion   CTRL-x CTRL-o (in editing mode) --> called 'omnifunc'.
-"   - Go to definition  CTRL-]                          --> CTRL-w CTRL-] (open in new horizontal split window)
+"   - Go to definition  CTRL-]                          --> Opens in same window.
+"                                                       --> Jump back from the definition  CTRL-t
+"                                                       --> CTRL-w CTRL-] (open in new horizontal split window)
 "
 " Mapping to open go to definition in vertical split (using ] without CTRL)
 nnoremap ] :vert winc ]<CR>
+
+
+" ctags
+" NOTES:
+" 1) Generate ctags using:
+"   alias ctags='ctags -R --c++-kinds=+p --fields=+iaS --extra=+q --extra=+f --exclude=.git *'
+"   --extra=+f:
+"     - You can now just type :tag <header-file-name> (without full path) to jump to the file.
+" 2) Plugin for automatically updating the ctags file:
+"     Plug 'craigemery/vim-autotag'
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Switch between C/C++ source and header file
+" NOTE: the tags file must have been previously created with ctags passing --extra=+f.
+nnoremap <leader>a :<c-u>tjump /^<c-r>=expand("%:t:r")<cr>\.\(<c-r>=join(get(
+    \ {
+    \ 'c':   ['h'],
+    \ 'cpp': ['h','hpp'],
+    \ 'h':   ['c','cpp'],
+    \ 'hpp': ['cpp']
+    \ },
+    \  expand("%:e"), ['UNKNOWN EXTENSION']), '\\\|')<cr>\)$<cr>
+
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "                             Settings for vim plugins
