@@ -15,7 +15,9 @@ Plug 'preservim/nerdtree'
 Plug 'richq/vim-cmake-completion'
 Plug 'python-mode/python-mode', { 'for': 'python', 'branch': 'develop' }
 Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
-Plug 'xavierd/clang_complete'
+if has('macunix')
+  Plug 'xavierd/clang_complete'
+endif
 call plug#end()
 """""""""""""""""""""""""""""""""""""""""""""""
 
@@ -148,7 +150,8 @@ let mapleader = ","
 " --------------------------
 "   - Help              :K (in normal mode)             --> open the man page for the keyword under the cursor.
 "   - Open file         gf                              --> Open the file under cursor (uses path to find the file).
-"   - Open file         CTRL-w gf                       --> Open the file in new window (uses path to find the file).
+"                       CTRL-^ or CTRL-o                --> Return to previous buffer (previously file).
+"   - Open file         CTRL-w gf                       --> Open the file in new tab (uses path to find the file).
 "   - Word completion   CTRL-n (in editing mode)        --> n-next suggestion, CTRL-p (for previous).
 "   - Code completion   CTRL-x CTRL-o (in editing mode) --> called 'omnifunc'.
 "   - Go to definition  CTRL-]                          --> Needs ctags. Open the definition file in same window.
@@ -161,7 +164,7 @@ nnoremap ] :vert winc ]<CR>
 
 """ ctags:
 " 1) Generate ctags using:
-"     ctags -R --c++-kinds=+p --fields=+iaS --extra=+q --extra=+f --exclude=.git *
+"     ctags -R --c++-kinds=+p --fields=+iaS --extra=+q --extra=+f --language-force=C++ --exclude=.git *
 " 2) Commands:
 "   :tag <symbol>    --> Open the file containing definition of <symbol>.
 "   :tag <filename>  --> Open file <filename> (irrespective of where it is in the directory tree).
