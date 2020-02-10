@@ -147,27 +147,29 @@ let mapleader = ","
 " Vim standard key mappings:
 " --------------------------
 "   - Help              :K (in normal mode)             --> open the man page for the keyword under the cursor.
+"   - Open file         gf                              --> Open the file under cursor (uses path to find the file).
+"   - Open file         CTRL-w gf                       --> Open the file in new window (uses path to find the file).
 "   - Word completion   CTRL-n (in editing mode)        --> n-next suggestion, CTRL-p (for previous).
 "   - Code completion   CTRL-x CTRL-o (in editing mode) --> called 'omnifunc'.
-"   - Go to definition  CTRL-]                          --> Opens in same window.
-"                                                       --> Jump back from the definition  CTRL-t
-"                                                       --> CTRL-w CTRL-] (open in new horizontal split window)
+"   - Go to definition  CTRL-]                          --> Needs ctags. Open the definition file in same window.
+"   - Go to definition  CTRL-w CTRL-]                   --> Needs ctags. Open the definition file in new split window.
+"   - Go back           CTRL-t                          --> Jump back to the previous file.
 "
 " Mapping to open go to definition in vertical split (using ] without CTRL)
 nnoremap ] :vert winc ]<CR>
 
 
-" ctags
-" NOTES:
+""" ctags:
 " 1) Generate ctags using:
-"   alias ctags='ctags -R --c++-kinds=+p --fields=+iaS --extra=+q --extra=+f --exclude=.git *'
-"   --extra=+f:
-"     - You can now just type :tag <header-file-name> (without full path) to jump to the file.
-" 2) Plugin for automatically updating the ctags file:
+"     ctags -R --c++-kinds=+p --fields=+iaS --extra=+q --extra=+f --exclude=.git *
+" 2) Commands:
+"   :tag <symbol>    --> Open the file containing definition of <symbol>.
+"   :tag <filename>  --> Open file <filename> (irrespective of where it is in the directory tree).
+"                    --> ctags must be generated using --extra=+f.
+"
+" TODO: Plugin for automatically updating the ctags file:
 "     Plug 'craigemery/vim-autotag'
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Switch between C/C++ source and header file
-" NOTE: the tags file must have been previously created with ctags passing --extra=+f.
+" Mapping to switch between C/C++ source and header file (the ctags must have been genarted using --extra=+f).
 nnoremap <leader>a :<c-u>tjump /^<c-r>=expand("%:t:r")<cr>\.\(<c-r>=join(get(
     \ {
     \ 'c':   ['h'],
@@ -248,14 +250,14 @@ let g:pymode_options_max_line_length = 120 " default is 79
 "   - Go to definition  CTRL-w CTRL-]                    --> standard way.
 "   - Run               ,r (<leader>r)
 "   - Build             ,b (<leader>b)
-"   - Help              :GoDoc(K) (K- Knowledge base, Vim standard key to open the man page for the keyword under the cursor.)
-"   - GoDocBrowser      :GoDocBrowser(ctrl-k) (Open go doc in the browser for the keyword under cusrosr)
+"   - Help              :GoDoc(K) (Open go doc in vim; K- Knowledge base, Vim standard key for man page).
+"   - GoDocBrowser      :GoDocBrowser (Open go doc in the browser for the keyword under cusrosr)
 "   - GoPlay            :GoPlay (Share your current code to play.golang.org)
 " Build using ,b (or :GoBuild)
 autocmd FileType go nmap <leader>b  <Plug>(go-build)
 " Run using ,r (or :GoRun)
 autocmd FileType go nmap <leader>r  <Plug>(go-run)
-" open go doc in browser
+" open go doc in browser using CTRL-k (or :GoDocBrowser)
 autocmd FileType go nmap <C-k> <Plug>(go-doc-browser)
 " open go doc in vertical split
 " autocmd FileType go nmap <Leader>gd <Plug>(go-doc-vertical)
@@ -263,8 +265,6 @@ autocmd FileType go nmap <C-k> <Plug>(go-doc-browser)
 map <C-n> :cnext<CR>
 " jump to previous error in the quickfix window
 map <C-m> :cprevious<CR>
-" nmap <F7> :GoPlay <CR>
-
 
 """""""""""""""""""""""""""""""""""""""""""""""""
 " clang_complete (C++ code completion for clang)
