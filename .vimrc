@@ -13,6 +13,7 @@ set nocompatible
 call plug#begin('~/.vim/plugged')
 Plug 'preservim/nerdtree'
 Plug 'yegappan/mru'
+Plug 'majutsushi/tagbar'
 Plug 'richq/vim-cmake-completion'
 Plug 'python-mode/python-mode', { 'for': 'python', 'branch': 'develop' }
 Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
@@ -144,15 +145,29 @@ endfunction
 "                                    ctags
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Important commands:
-"   :stag <symbol> --> Open the file containing definition of <symbol> in split window.
+"   :stag <symbol> --> Opens the file containing definition of <symbol> in split window.
 "   :tag <symbol>  --> Same as above except open in same window.
-"   :stag <file>   --> Open the file, irrespective of where it is located (ctags must be generated using --extra=+f).
+"   :stag <file>   --> Opens the file, irrespective of where it is located (ctags must be generated using --extra=+f).
 "   :tag <symbol>  --> Same as above except open in same window.
 " Generate ctags using:
-"     ctags -R --c++-kinds=+p --fields=+iaS --extra=+q --extra=+f --language-force=C++ --exclude=.git *
-"
-" TODO: Plugin for automatically updating the ctags file:
-"     Plug 'craigemery/vim-autotag'
+"   ctags -R --c++-kinds=+p --fields=+iaS --extra=+q --extra=+f --language-force=C++ --exclude=.git *
+"     -R
+"       - Recursively enters to sub directories for generating tags.
+"     --c++-kinds=+p
+"        - Correctly identify if a scope specifier is a class name or a namespace specifier.
+"        - Add access specification (e.g. public, private) and implementation information (e.g. virtual).
+"     --fields=+iaS
+"       a   Access (or export) of class members
+"       i   Inheritance information
+"       S   Signature of routine (e.g. prototype or parameter list)
+"      --extra=+q
+"         - Generate a second, class-qualified tag for each class member in the form class::member for C++.
+"     p--extra=+f
+"         - Add file paths in the generated tags file.
+"     --language-force=C++
+"         - Forces the specified language to be used for every supplied file instead of automatically selecting the
+"         language based upon its extension.
+
 " Mapping to switch between C/C++ source and header file (the ctags must have been genarted using --extra=+f).
 nnoremap <leader>a :<c-u>tjump /^<c-r>=expand("%:t:r")<cr>\.\(<c-r>=join(get(
     \ {
@@ -173,13 +188,13 @@ let mapleader = ","
 " Vim standard key mappings:
 " --------------------------
 "   - Help              :K (in normal mode)             --> open the man page for the keyword under the cursor.
-"   - Open file         gf                              --> Open the file under cursor (uses path to find the file).
+"   - Open file         gf                              --> Opens the file under cursor (uses path to find the file).
 "                       CTRL-^ or CTRL-o                --> Return to previous buffer (previously file).
-"   - Open file         CTRL-w gf                       --> Open the file in new tab (uses path to find the file).
+"   - Open file         CTRL-w gf                       --> Opens the file in new tab (uses path to find the file).
 "   - Word completion   CTRL-n (in editing mode)        --> n-next suggestion, CTRL-p (for previous).
 "   - Code completion   CTRL-x CTRL-o (in editing mode) --> called 'omnifunc'.
-"   - Go to definition  CTRL-]                          --> Needs ctags. Open the definition file in same window.
-"   - Go to definition  CTRL-w CTRL-]                   --> Needs ctags. Open the definition file in new split window.
+"   - Go to definition  CTRL-]                          --> Needs ctags. Opens the definition file in same window.
+"   - Go to definition  CTRL-w CTRL-]                   --> Needs ctags. Opens the definition file in new split window.
 "   - Go back           CTRL-t                          --> Jump back to the previous file.
 "
 " Mapping to open go to definition in vertical split (using ] without CTRL)
@@ -190,8 +205,8 @@ nnoremap ] :vert winc ]<CR>
 "                             Settings for vim plugins
 "                             -------------------------
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" nerdtree
-"""""""""""""""""""""""""""""""""""""""""""""""""
+" nerdtree (Display Disrectory and File tree in side bar)
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 map <F8> :NERDTreeToggle<CR>
 " close vim if the only window left open is a NERDTree
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
@@ -201,33 +216,43 @@ let NERDTreeBookmarksFile=expand("$HOME/.vim/nerdtree_bookmarks")
 " show nerdtree on the right side
 let g:NERDTreeWinPos = "right"
 
-"""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " MRU (Show most recently opened file)
-"""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " https://github.com/yegappan/mru/wiki/User-Manual
 " Important commands:
-"   :MRU    - Display MRU window.
-"   o       - Open the selected file in a split.
-"   t       - Open the selected file in new tab.
-"   <N>o/t  - Open N files (you can also visually select multiple filenames).
+"   :MRU      - Display MRU window.
+"   <Enter>   - Opens selected file in the same window (opens in a new tab if MRU_Open_File_Use_Tabs = 1).
+"   o         - Opens the selected file in a split.
+"   t         - Opens the selected file in new tab.
+"   <N>o/t    - Opens N files (you can also visually select multiple filenames).
 "
 let MRU_File = expand("$HOME/.vim/mru_files")
 let MRU_Max_Entries = 20
 let MRU_Window_Height = 15          " The default height of the MRU window is 8.
-let MRU_Open_File_Use_Tabs = 1      " Open the selected file in new tab rather than current tab.
+let MRU_Open_File_Use_Tabs = 1      " Opens the selected file in new tab rather than current tab.
 "let MRU_Auto_Close = 0             " To keep the MRU window open, after selecting the file.
 
-"""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" TagBar (Displays Class and File structure in side bar)
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Important commands:
+"   :TagbarToggle
+"
+nmap <F9> :TagbarToggle<CR>
+
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " vim-cmake-completion (code completion for cmake)
-"""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Important commands:
 "   - Word completion   CTRL-n/CTRL-p (in editing mode)  --> Vim's standard feature (n - next/p - previous)
 "   - Code completion   CTRL-x CTRL-o (in editing mode)  --> Vim's standard feature ('omnifunc')
 
 
-"""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " python-mode (all-in-one plugin for python)
-"""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Important commands:
 "   - Word completion   CTRL-n/CTRL-p (in editing mode) --> Vim's standard feature (n - next/p - previous)
 "   - Code completion   CTRL-x CTRL-o (in editing mode) --> Vim's standard feature (called 'omnifunc')
@@ -260,9 +285,9 @@ let g:pymode_rope_goto_definition_cmd = 'vnew'        " open definition in verti
 let g:pymode_options_max_line_length = 120 " default is 79
 
 
-"""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " vim-go (all-in-one plugin for golang)
-"""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "   https://github.com/fatih/vim-go-tutorial
 "   https://github.com/fatih/vim-go.git
 " Important commands:
@@ -271,8 +296,8 @@ let g:pymode_options_max_line_length = 120 " default is 79
 "   - Go to definition  CTRL-w CTRL-]                    --> standard way.
 "   - Run               ,r (<leader>r)
 "   - Build             ,b (<leader>b)
-"   - Help              :GoDoc(K) (Open go doc in vim; K- Knowledge base, Vim standard key for man page).
-"   - GoDocBrowser      :GoDocBrowser (Open go doc in the browser for the keyword under cusrosr)
+"   - Help              :GoDoc(K) (Opens go doc in vim; K- Knowledge base, Vim standard key for man page).
+"   - GoDocBrowser      :GoDocBrowser (Opens go doc in the browser for the keyword under cusrosr)
 "   - GoPlay            :GoPlay (Share your current code to play.golang.org)
 " Build using ,b (or :GoBuild)
 autocmd FileType go nmap <leader>b  <Plug>(go-build)
@@ -287,9 +312,9 @@ map <C-n> :cnext<CR>
 " jump to previous error in the quickfix window
 map <C-m> :cprevious<CR>
 
-"""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " clang_complete (C++ code completion for clang)
-"""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Important commands:
 "   - Word completion   CTRL-n/CTRL-p (in editing mode)  --> Vim's standard feature (n - next/p - previous)
 "   - Code completion   CTRL-x CTRL-o (in editing mode)  --> Vim's standard feature (called 'omnifunc')
