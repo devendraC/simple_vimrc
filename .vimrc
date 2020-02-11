@@ -207,7 +207,7 @@ nnoremap ] :vert winc ]<CR>
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " nerdtree (Display Disrectory and File tree in side bar)
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-map <F8> :NERDTreeToggle<CR>
+map <F9> :NERDTreeToggle<CR>
 " close vim if the only window left open is a NERDTree
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
 let NERDTreeShowBookmarks=1
@@ -222,7 +222,7 @@ let g:NERDTreeWinPos = "right"
 " https://github.com/yegappan/mru/wiki/User-Manual
 " Important commands:
 "   :MRU      - Display MRU window.
-"   <Enter>   - Opens selected file in the same window (opens in a new tab if MRU_Open_File_Use_Tabs = 1).
+"   <CR>      - Opens selected file in the same window (opens in a new tab if MRU_Open_File_Use_Tabs = 1).
 "   o         - Opens the selected file in a split.
 "   t         - Opens the selected file in new tab.
 "   <N>o/t    - Opens N files (you can also visually select multiple filenames).
@@ -237,9 +237,16 @@ let MRU_Open_File_Use_Tabs = 1      " Opens the selected file in new tab rather 
 " TagBar (Displays Class and File structure in side bar)
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Important commands:
-"   :TagbarToggle
+"   :TagbarToggle - Show tagbar window.
 "
-nmap <F9> :TagbarToggle<CR>
+" Commands in tagbar window:
+"   <F1>    - Display tagbar help.
+"   <CR>    - Jump to tag definition
+"   <Space> - Display tag prototype
+"   <C-n>   - Go to next top-level tag
+"   <C-p>   - Go to previous top-level tag
+"
+nmap <F8> :TagbarToggle<CR>
 
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
