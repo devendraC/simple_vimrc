@@ -11,10 +11,11 @@ set nocompatible
 "   - After adding a new plugin you need to reload .vimrc and call :PlugInstall
 "   - To see help of a installed vim plugin use :help <plugin-name> (e.g. :help vim-go)
 call plug#begin('~/.vim/plugged')
-Plug 'preservim/nerdtree'
-Plug 'yegappan/mru'
-Plug 'majutsushi/tagbar'
-Plug 'richq/vim-cmake-completion'
+Plug 'craigemery/vim-autotag'     " Generate ctags automatically.
+Plug 'preservim/nerdtree'         " Display file tree bar (use F9).
+Plug 'yegappan/mru'               " Display list of most recently opened files (use :MRU).
+Plug 'majutsushi/tagbar'          " Display program structure tree-bar (use F8)
+Plug 'richq/vim-cmake-completion' " Auto completion for cmake (use CTRL-x CTRL-o)
 Plug 'python-mode/python-mode', { 'for': 'python', 'branch': 'develop' }
 Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 if has('macunix')
@@ -87,8 +88,8 @@ set linebreak         " Wrap at boundary (e.g. at word boundary - when wrap is n
 set textwidth=120     " Physically wrap after 120 characters.
 
 " No backup files but do auto-save
-set noswapfile        " Don't use swapfile
-set nobackup          " Get rid of anoying ~file
+set noswapfile        " Don't use swap file
+set nobackup          " Get rid of annoying ~file
 set autowrite         " Auto save file after running certain commands (including make, next, previous).
 set autoread          " Auto reload the file if it changes outside of vim.
 
@@ -102,7 +103,7 @@ augroup remove_trailing_whitespace
   autocmd BufWritePre * :call RemoveTrailingWhitespace()
 augroup end
 
-" Completion menu setings
+" Completion menu settings
 set completeopt=menu,menuone,longest,preview
 
 " enables undo files even if you exit Vim.
@@ -114,14 +115,17 @@ if has('persistent_undo')
 endif
 
 " Enable to copy to clipboard for operations like yank, delete, change and put
-" http://stackoverflow.com/questions/20186975/vim-mac-how-to-copy-to-clipboard-without-pbcopy
-if has('unnamedplus')
-  set clipboard^=unnamed
-  set clipboard^=unnamedplus
-endif
+"if has('unnamedplus')
+"  set clipboard^=unnamed
+"  set clipboard^=unnamedplus
+"else
+"  echo "clipboard not supported"
+"endif
+set clipboard^=unnamed
+set clipboard^=unnamedplus
 
 
-" Workaround if the last cusror position is not being saved
+" Workaround if the last cursor position is not being saved
 " When editing a file, always jump to the last known cursor position.
 " Don't do it when the position is invalid, when inside an event handler
 " (happens when dropping a file on gvim) and for a commit message (it's
@@ -161,15 +165,16 @@ endfunction
 "       i   Inheritance information
 "       S   Signature of routine (e.g. prototype or parameter list)
 "      --extra=+q
-"         - Generate a second, class-qualified tag for each class member in the form class::member for C++.
-"     p--extra=+f
-"         - Add file paths in the generated tags file.
+"         - Generates a second, class-qualified tag for each class member in the form class::member for C++.
+"     --extra=+f
+"         - Adds file paths in the generated tags file, so that you can open in vim without using full path.
 "     --language-force=C++
 "         - Forces the specified language to be used for every supplied file instead of automatically selecting the
 "         language based upon its extension.
 
-" Mapping to switch between C/C++ source and header file (the ctags must have been genarted using --extra=+f).
-nnoremap <leader>a :<c-u>tjump /^<c-r>=expand("%:t:r")<cr>\.\(<c-r>=join(get(
+" Mapping to switch between C/C++ source and header file (the ctags must have been generated using --extra=+f).
+" TODO - this is not working.
+nnoremap <leader>o :<c-u>tjump /^<c-r>=expand("%:t:r")<cr>\.\(<c-r>=join(get(
     \ {
     \ 'c':   ['h'],
     \ 'cpp': ['h','hpp'],
@@ -200,11 +205,20 @@ let mapleader = ","
 " Mapping to open go to definition in vertical split (using ] without CTRL)
 nnoremap ] :vert winc ]<CR>
 
-
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "                             Settings for vim plugins
 "                             -------------------------
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" vim-autotag (Generate ctags automatically)
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+let g:autotagCtagsCmd="ctags --c++-kinds=+p --fields=+iaS --extras=+q --extras=+f --language-force=C++ --exclude=.git"
+"let g:autotagVerbosityLevel=10 "logging.DEBUG (python's logging module)
+
+
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " nerdtree (Display Disrectory and File tree in side bar)
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 map <F9> :NERDTreeToggle<CR>
@@ -227,7 +241,7 @@ let g:NERDTreeWinPos = "right"
 "   t         - Opens the selected file in new tab.
 "   <N>o/t    - Opens N files (you can also visually select multiple filenames).
 "
-let MRU_File = expand("$HOME/.vim/mru_files")
+let MRU_File = expand("$HOME/.vim/.mru_files")
 let MRU_Max_Entries = 20
 let MRU_Window_Height = 15          " The default height of the MRU window is 8.
 let MRU_Open_File_Use_Tabs = 1      " Opens the selected file in new tab rather than current tab.
@@ -247,6 +261,10 @@ let MRU_Open_File_Use_Tabs = 1      " Opens the selected file in new tab rather 
 "   <C-p>   - Go to previous top-level tag
 "
 nmap <F8> :TagbarToggle<CR>
+autocmd VimEnter * nested :call tagbar#autoopen(1)  " Open tagbar when starting vim with supported file-type.
+autocmd FileType * nested :call tagbar#autoopen(0)  " Open tagbar when opening a supported file in already running vim.
+autocmd BufEnter * nested :call tagbar#autoopen(0)  " Open tagbar when switching to an already loaded,supported buffer.
+"autocmd FileType c,cpp,python nested :TagbarOpen    " Open tagbar for these file-types only.
 
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
