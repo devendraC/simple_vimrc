@@ -11,13 +11,16 @@ set nocompatible
 "   - After adding a new plugin you need to reload .vimrc and call :PlugInstall
 "   - To see help of a installed vim plugin use :help <plugin-name> (e.g. :help vim-go)
 call plug#begin('~/.vim/plugged')
-Plug 'craigemery/vim-autotag'     " Generate ctags automatically.
+"Plug 'dchandola/vim-path'         " Set path automatically using compile_commands.json
+"Plug 'craigemery/vim-autotag'     " Generate ctags automatically.
 Plug 'preservim/nerdtree'         " Display file tree bar (use F9).
 Plug 'yegappan/mru'               " Display list of most recently opened files (use :MRU).
 Plug 'majutsushi/tagbar'          " Display program structure tree-bar (use F8)
 Plug 'richq/vim-cmake-completion' " Auto completion for cmake (use CTRL-x CTRL-o)
 Plug 'python-mode/python-mode', { 'for': 'python', 'branch': 'develop' }
 Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
+Plug 'github/copilot.vim'
+Plug 'le-michael/flatbuffer.vim'
 if has('macunix')
   Plug 'xavierd/clang_complete'
 endif
@@ -57,8 +60,8 @@ set spelllang=en_us   " Set US English for spell checking.
 augroup forspellcheck
   autocmd!
 " Enable spell checking for text, markdown and git commit only.
-  autocmd FileType text,markdown,gitcommit setlocal spell
-  autocmd BufRead,BufNewFile *.md setlocal spell
+"  autocmd FileType text,markdown,gitcommit setlocal spell
+  autocmd FileType markdown,gitcommit setlocal spell
 augroup END
 
 " Searching
@@ -228,7 +231,7 @@ let NERDTreeShowBookmarks=1
 " Store the bookmarks file
 let NERDTreeBookmarksFile=expand("$HOME/.vim/nerdtree_bookmarks")
 " show nerdtree on the right side
-let g:NERDTreeWinPos = "right"
+"let g:NERDTreeWinPos = "right"
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " MRU (Show most recently opened file)
@@ -261,10 +264,14 @@ let MRU_Open_File_Use_Tabs = 1      " Opens the selected file in new tab rather 
 "   <C-p>   - Go to previous top-level tag
 "
 nmap <F8> :TagbarToggle<CR>
-autocmd VimEnter * nested :call tagbar#autoopen(1)  " Open tagbar when starting vim with supported file-type.
-autocmd FileType * nested :call tagbar#autoopen(0)  " Open tagbar when opening a supported file in already running vim.
-autocmd BufEnter * nested :call tagbar#autoopen(0)  " Open tagbar when switching to an already loaded,supported buffer.
-"autocmd FileType c,cpp,python nested :TagbarOpen    " Open tagbar for these file-types only.
+" TODO - use augroup and enable explicitly for C++ files.
+" NOTE:
+"   To know the <file-type> of a file in vim, run - :set ft?
+"   To create your own custom file type           - autocmd BufRead *.CPP setf cpp
+" autocmd VimEnter c,cpp,python,go nested :call tagbar#autoopen(1)  " Open tagbar when starting vim with supported file-type.
+" autocmd FileType c,cpp,python,go nested :call tagbar#autoopen(0)  " Open tagbar when opening a supported file in already running vim.
+" autocmd BufEnter c,cpp,python,go nested :call tagbar#autoopen(0)  " Open tagbar when switching to an already loaded,supported buffer.
+" autocmd FileType c,cpp,python,go nested :TagbarOpen    " Open tagbar for these file-types only.
 
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
